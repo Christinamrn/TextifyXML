@@ -3,6 +3,56 @@ from tkinter import filedialog, messagebox
 import xml.etree.ElementTree as ET
 import os
 
+# --- traductions ---
+langues = {
+    "fr": {
+        "add_xml_files" : "Ajouter des fichiers XML",
+        "file_type" : "Fichiers XML (*.xml)",
+        "save": "Sauvegarder",
+        "error": "Erreur",
+        "select_file": "Sélectionnez un fichier",
+        "warning" : "Attention",
+        "select_file_to_delete" : "Sélectionnez un fichier à supprimer.",
+        "no_file_selected" : "Aucun fichier sélectionné.",
+        "add_filename" : "Veuillez entrer un nom de fichier.",
+        "text_file" : "Fichier texte (*.txt)",
+        "done" : "Terminé",
+        "saved" : "Fichier créé : ",
+        "filename" : "nom_du_fichier"
+    },
+
+    "en": {
+        "add_xml_files" : "Add XML files",
+        "file_type" : "XML Files (*.xml)",
+        "save": "Save",
+        "error": "Error",
+        "select_file": "Select a file",
+        "warning" : "Warning",
+        "select_file_to_delete" : "Select a file to delete.",
+        "no_file_selected" : "No file selected.",
+        "add_filename" : "Please add a filename.",
+        "text_file" : "Text file (*.txt)",
+        "done" : "Done",
+        "saved" : "File created : ",
+        "filename" : "name_of_file"
+    }
+}
+
+langue_activee = "en"
+
+def trad(cle):
+    return langues[langue_activee][cle]
+
+def changer_langue(nouvelle_langue):
+    global langue_activee
+    langue_activee = nouvelle_langue
+    rafraichir_interface()
+
+def rafraichir_interface():
+    nom_nouveau_fichier.delete(0, tk.END)
+    nom_nouveau_fichier.insert(0, trad("filename"))
+    btn_sauvegarde.config(text=trad("save"))
+
 fichiers_xml = []
 drag_index = None
 
@@ -11,8 +61,8 @@ drag_index = None
 def ajouter_fichiers():
     global fichiers_xml
     fichiers = filedialog.askopenfilenames(
-        title="Ajouter des fichiers XML",
-        filetypes=[("Fichiers XML", "*.xml")]
+        title=trad("add_xml_files"),
+        filetypes=[(trad("file_type"), "*.xml")]
     )
     for fichier in fichiers:
         fichiers_xml.append(fichier)
@@ -22,7 +72,7 @@ def supprimer_fichier(event=None):
     global fichiers_xml
     fichier_selectionne = liste.curselection()
     if not fichier_selectionne:
-        messagebox.showwarning("Attention", "Sélectionnez un fichier à supprimer.")
+        messagebox.showwarning(trad("warning"), trad("select_file_to_delete"))
         return
     for index in reversed(fichier_selectionne):
         fichiers_xml.pop(index)
@@ -125,19 +175,19 @@ def mise_a_jour_etat_boutons(event=None):
 # Sauvegarde
 def sauvegarder_fichier():
     if not fichiers_xml:
-        messagebox.showwarning("Attention", "Aucun fichier sélectionné.")
+        messagebox.showwarning(trad("warning"), trad("no_file_selected"))
         return
 
     nom_fichier = nom_nouveau_fichier.get().strip()
     if not nom_fichier:
-        messagebox.showwarning("Attention", "Veuillez entrer un nom de fichier.")
+        messagebox.showwarning(trad("warning"), trad("add_filename"))
         return
 
     chemin_final = filedialog.asksaveasfilename(
-        title="Sauvegarder",
+        title=trad("save"),
         defaultextension=".txt",
         initialfile=nom_fichier,
-        filetypes=[("Fichiers texte", "*.txt")]
+        filetypes=[(trad("text_file"), "*.txt")]
     )
 
     if not chemin_final:
@@ -156,10 +206,10 @@ def sauvegarder_fichier():
         with open(chemin_final, "w", encoding="utf-8") as f:
             f.write(resultat)
 
-        messagebox.showinfo("Succès", f"Fichier créé :\n{chemin_final}")
+        messagebox.showinfo(trad("done"), trad("saved")+chemin_final)
 
     except Exception as e:
-        messagebox.showerror("Erreur", str(e))
+        messagebox.showerror(trad("error"), str(e))
 
 # === Interface Tk ===
 
@@ -231,12 +281,13 @@ frame_bas.pack(fill=tk.X, pady=15, padx=15)
 
 nom_nouveau_fichier = tk.Entry(frame_bas)
 nom_nouveau_fichier.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
-nom_nouveau_fichier.insert(0, "nom_du_fichier")
+#nom_nouveau_fichier.insert(0, trad("filename"))
 
 # --- sauvegarde ---
-btn_sauvegarde = tk.Button(frame_bas, text="Sauvegarder", command=sauvegarder_fichier)
+btn_sauvegarde = tk.Button(frame_bas, text=trad("save"), command=sauvegarder_fichier)
 btn_sauvegarde.pack(side=tk.LEFT, padx=5)
 
+rafraichir_interface()
 mise_a_jour_etat_boutons()
 
 fenetre.mainloop()
