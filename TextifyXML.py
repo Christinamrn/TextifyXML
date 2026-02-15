@@ -129,6 +129,11 @@ def tout_supprimer(event=None):
         rafraichir_liste()
         mise_a_jour_etat_boutons()
 
+def nouveau(event=None):
+    tout_supprimer()
+    nom_nouveau_fichier.delete(0, tk.END)
+    nom_nouveau_fichier.insert(0, trad("filename"))
+
 def trier_az():
     global fichiers_xml
     fichiers_xml.sort(key=lambda x: os.path.basename(x).lower())
@@ -342,7 +347,7 @@ btn_sauvegarde.pack(side=tk.LEFT, padx=5)
 # Barre de menu
 menubar = Menu(fenetre)
 filemenu = Menu(menubar, tearoff=0)
-filemenu.add_command(label=trad("new"), command=tout_supprimer)
+filemenu.add_command(label=trad("new"), command=nouveau)
 filemenu.add_command(label=trad("add_xml_files"), command=ajouter_fichiers)
 filemenu.add_command(label=trad("save"), command=sauvegarder_fichier)
 filemenu.add_separator()
