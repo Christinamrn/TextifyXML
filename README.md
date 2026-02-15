@@ -17,6 +17,7 @@ This version includes :
 - Move a file up or down in the list
 - Drag and drop to change the order of a file in the list
 - Alphabetical order option (or reversed)
+- Preview for each file
 - Add a personalised output filename
 - Save the file
 
