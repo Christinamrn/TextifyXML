@@ -146,8 +146,10 @@ def trier_za():
 
 def rafraichir_liste():
     liste.delete(0, tk.END)
-    for fichier in fichiers_xml:
-        liste.insert(tk.END, os.path.basename(fichier))
+    largeur = len(str(len(fichiers_xml)))
+    for index, fichier in enumerate(fichiers_xml, 1):
+        nom_fichier = os.path.basename(fichier)
+        liste.insert(tk.END, f"{index:>{largeur}}. {nom_fichier}")
     mise_a_jour_etat_boutons()
 
 # Drag & Drop
@@ -162,7 +164,9 @@ def on_drag_motion(event):
         fichiers_xml.insert(new_index, fichiers_xml.pop(drag_index))
         rafraichir_liste()
         liste.selection_set(new_index)
+        liste.activate(new_index)
         drag_index = new_index
+        mise_a_jour_etat_boutons()
 
 # Navigation clavier de la liste
 def selection_clavier(event):
@@ -216,7 +220,7 @@ def mise_a_jour_etat_boutons(event=None):
     btn_tri_az.config(state="normal" if len(fichiers_xml) >= 2 else "disabled")
     btn_tri_za.config(state="normal" if len(fichiers_xml) >= 2 else "disabled")
     btn_sauvegarde.config(state="normal" if len(fichiers_xml) != 0 else "disabled")
-    filemenu.entryconfig(trad("save"), state="normal" if len(fichiers_xml) != 0 else "disabled")
+    filemenu.entryconfig(2, state="normal" if len(fichiers_xml) != 0 else "disabled")
 
     if not fichier_selectionne or len(fichiers_xml) == 0:
         btn_moins.config(state="disabled")
@@ -282,7 +286,7 @@ frame_liste.pack(fill=tk.BOTH, expand=True, padx=15, pady=15)
 scrollbar = tk.Scrollbar(frame_liste)
 scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
-liste = tk.Listbox(frame_liste, selectmode=tk.SINGLE, yscrollcommand=scrollbar.set)
+liste = tk.Listbox(frame_liste, selectmode=tk.SINGLE, activestyle="none", yscrollcommand=scrollbar.set)
 liste.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
 scrollbar.config(command=liste.yview)
