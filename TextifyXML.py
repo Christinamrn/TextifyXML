@@ -1,11 +1,12 @@
 import tkinter as tk
-from tkinter import filedialog, messagebox
+from tkinter import filedialog, messagebox, Menu
 import xml.etree.ElementTree as ET
 import os
 
 # --- traductions ---
 langues = {
     "fr": {
+        "new" : "Nouveau",
         "add_xml_files" : "Ajouter des fichiers XML",
         "file_type" : "Fichiers XML (*.xml)",
         "save": "Sauvegarder",
@@ -14,14 +15,21 @@ langues = {
         "warning" : "Attention",
         "select_file_to_delete" : "Sélectionnez un fichier à supprimer.",
         "no_file_selected" : "Aucun fichier sélectionné.",
+        "delete?" : "Supprimer tous les fichiers de la liste ?",
         "add_filename" : "Veuillez entrer un nom de fichier.",
         "text_file" : "Fichier texte (*.txt)",
         "done" : "Terminé",
         "saved" : "Fichier créé : ",
-        "filename" : "nom_du_fichier"
+        "filename" : "nom_du_fichier",
+        "quit" : "Quitter",
+        "File" : "Fichier",
+        "Language" : "Langue",
+        "fr" : "Français",
+        "en" : "Anglais"
     },
 
     "en": {
+        "new" : "New",
         "add_xml_files" : "Add XML files",
         "file_type" : "XML Files (*.xml)",
         "save": "Save",
@@ -30,11 +38,17 @@ langues = {
         "warning" : "Warning",
         "select_file_to_delete" : "Select a file to delete.",
         "no_file_selected" : "No file selected.",
+        "delete?" : "Delete all files?",
         "add_filename" : "Please add a filename.",
         "text_file" : "Text file (*.txt)",
         "done" : "Done",
         "saved" : "File created : ",
-        "filename" : "name_of_file"
+        "filename" : "name_of_file",
+        "quit" : "Quit",
+        "File" : "File",
+        "Language" : "Language",
+        "fr" : "French",
+        "en" : "English"
     }
 }
 
@@ -46,12 +60,33 @@ def trad(cle):
 def changer_langue(nouvelle_langue):
     global langue_activee
     langue_activee = nouvelle_langue
+    langue_var.set(nouvelle_langue)
     rafraichir_interface()
+    rafraichir_menus()
 
 def rafraichir_interface():
     nom_nouveau_fichier.delete(0, tk.END)
     nom_nouveau_fichier.insert(0, trad("filename"))
     btn_sauvegarde.config(text=trad("save"))
+
+def rafraichir_menus():
+    menubar.delete(0, tk.END)
+
+    filemenu = Menu(menubar, tearoff=0)
+    filemenu.add_command(label=trad("new"), command=tout_supprimer)
+    filemenu.add_command(label=trad("add_xml_files"), command=ajouter_fichiers)
+    filemenu.add_command(label=trad("save"), command=sauvegarder_fichier)
+    filemenu.add_separator()
+    filemenu.add_command(label=trad("quit"), command=fenetre.quit)
+    menubar.add_cascade(label=trad("File"), menu=filemenu)
+
+    languagemenu = Menu(menubar, tearoff=0)
+    languagemenu.add_radiobutton(label=trad("fr"), variable=langue_var, value="fr", command=lambda: changer_langue("fr"))
+    languagemenu.add_radiobutton(label=trad("en"), variable=langue_var, value="en", command=lambda: changer_langue("en"))
+    menubar.add_cascade(label=trad("Language"), menu=languagemenu)
+
+    fenetre.config(menu=menubar)
+
 
 fichiers_xml = []
 drag_index = None
@@ -77,6 +112,22 @@ def supprimer_fichier(event=None):
     for index in reversed(fichier_selectionne):
         fichiers_xml.pop(index)
     rafraichir_liste()
+
+def tout_supprimer(event=None):
+    global fichiers_xml
+
+    if not fichiers_xml:
+        return
+
+    confirmation = messagebox.askyesno(
+        trad("warning"),
+        trad("delete?")
+    )
+
+    if confirmation:
+        fichiers_xml.clear()
+        rafraichir_liste()
+        mise_a_jour_etat_boutons()
 
 def trier_az():
     global fichiers_xml
@@ -160,6 +211,7 @@ def mise_a_jour_etat_boutons(event=None):
     btn_tri_az.config(state="normal" if len(fichiers_xml) >= 2 else "disabled")
     btn_tri_za.config(state="normal" if len(fichiers_xml) >= 2 else "disabled")
     btn_sauvegarde.config(state="normal" if len(fichiers_xml) != 0 else "disabled")
+    filemenu.entryconfig(trad("save"), state="normal" if len(fichiers_xml) != 0 else "disabled")
 
     if not fichier_selectionne or len(fichiers_xml) == 0:
         btn_moins.config(state="disabled")
@@ -287,7 +339,24 @@ nom_nouveau_fichier.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
 btn_sauvegarde = tk.Button(frame_bas, text=trad("save"), command=sauvegarder_fichier)
 btn_sauvegarde.pack(side=tk.LEFT, padx=5)
 
+# Barre de menu
+menubar = Menu(fenetre)
+filemenu = Menu(menubar, tearoff=0)
+filemenu.add_command(label=trad("new"), command=tout_supprimer)
+filemenu.add_command(label=trad("add_xml_files"), command=ajouter_fichiers)
+filemenu.add_command(label=trad("save"), command=sauvegarder_fichier)
+filemenu.add_separator()
+filemenu.add_command(label=trad("quit"), command=fenetre.quit)
+menubar.add_cascade(label=trad("File"), menu=filemenu)
+
+languagemenu = Menu(menubar, tearoff=0)
+langue_var = tk.StringVar(value=langue_activee)
+languagemenu.add_radiobutton(label=trad("fr"), variable=langue_var, value="fr", command=lambda: changer_langue("fr"))
+languagemenu.add_radiobutton(label=trad("en"), variable=langue_var, value="en", command=lambda: changer_langue("en"))
+menubar.add_cascade(label=trad("Language"), menu=languagemenu)
+
 rafraichir_interface()
 mise_a_jour_etat_boutons()
+fenetre.config(menu=menubar)
 
 fenetre.mainloop()
