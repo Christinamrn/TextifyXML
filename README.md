@@ -18,7 +18,21 @@ This version includes :
 - Add a personalised output filename
 - Save the file
 
-### Convert your XML files
+### Convert your XML files with TextifyXML
+#### Command line
+To run TextifyXML directly from the source using Python.
 ```bash
 python TextifyXML.py
+```
+
+#### PyInstaller
+To run TextifyXML as a standalone application, build it using the appropriate command for your operating system. The executable will be available in the `/dist` directory.
+##### Windows (.exe)
+```bash
+python -m PyInstaller --onefile --windowed --icon ".\logo\TextifyXML_ico.ico" --add-data ".\logo\TextifyXML_png.png;logo" TextifyXML.py
+```
+
+##### macOS (.app)
+```bash
+python -m PyInstaller --onefile --windowed --icon ".\logo\TextifyXML_icns.icns" --add-data ".\logo\TextifyXML_png.png;logo" TextifyXML.py
 ```
