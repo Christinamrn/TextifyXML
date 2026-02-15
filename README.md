@@ -1,5 +1,7 @@
 # TextifyXML
 
+![image](/logo/TextifyXML_png.png)
+
 ### Presentation
 
 I created this little app following a discussion with a friend who was struggling to find a way to convert his XML files exported from [TACTEO](https://tacteo.huma-num.fr/) while keeping only the text, not the XML tags. Online, it was impossible to find a website or an application that could reach his expectations. Some of them still included the tags, others needed to copy and paste texts but no upload and/or download features. That's the reason why I decided to a create a solution by myself. A simple one using _python_ and _Tkinter_. My friend doesn't know anything about coding so I use __PyInstaller__ to have TextifyXML directly as an application. It works with all OS.
