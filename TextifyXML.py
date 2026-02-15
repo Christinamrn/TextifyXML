@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import filedialog, messagebox, Menu
 import xml.etree.ElementTree as ET
 import os
+import sys
 
 # --- traductions ---
 langues = {
@@ -9,9 +10,10 @@ langues = {
         "new" : "Nouveau",
         "add_xml_files" : "Ajouter des fichiers XML",
         "file_type" : "Fichiers XML (*.xml)",
-        "save": "Sauvegarder",
-        "error": "Erreur",
+        "save" : "Sauvegarder",
+        "error" : "Erreur",
         "select_file": "Sélectionnez un fichier",
+        "convert_file" : "Convertir ce fichier",
         "warning" : "Attention",
         "select_file_to_delete" : "Sélectionnez un fichier à supprimer.",
         "no_file_selected" : "Aucun fichier sélectionné.",
@@ -34,8 +36,9 @@ langues = {
         "add_xml_files" : "Add XML files",
         "file_type" : "XML Files (*.xml)",
         "save": "Save",
-        "error": "Error",
-        "select_file": "Select a file",
+        "error" : "Error",
+        "select_file" : "Select a file",
+        "convert_file" : "Convert this file",
         "warning" : "Warning",
         "select_file_to_delete" : "Select a file to delete.",
         "no_file_selected" : "No file selected.",
@@ -93,6 +96,7 @@ def rafraichir_menus():
 def rafraichir_menu_contextuel():
     global menu_contextuel
     menu_contextuel = tk.Menu(liste, tearoff=0)
+    menu_contextuel.add_command(label=trad("convert_file"), command=convertir_fichier)
     menu_contextuel.add_command(label=trad("delete"), command=supprimer_fichier)
 
 fichiers_xml = []
@@ -291,12 +295,48 @@ def sauvegarder_fichier():
     except Exception as e:
         messagebox.showerror(trad("error"), str(e))
 
+def convertir_fichier():
+    fichier_selectionne = liste.curselection()
+    if not fichier_selectionne:
+        return
+    
+    index = fichier_selectionne[0]
+    chemin_xml = fichiers_xml[index]
+    chemin_final = os.path.splitext(chemin_xml)[0] + ".txt"
+
+    if not chemin_final:
+        return
+
+    try:
+        tree = ET.parse(chemin_xml)
+        root = tree.getroot()
+        texte = "\n".join(t.strip() for t in root.itertext() if t.strip())
+
+        with open(chemin_final, "w", encoding="utf-8") as f:
+            f.write(texte)
+
+        messagebox.showinfo(trad("done"), trad("saved")+chemin_final)
+
+    except Exception as e:
+        messagebox.showerror(trad("error"), str(e))
+
 # === Interface Tk ===
 
 fenetre = tk.Tk()
 fenetre.title("TexifyXML")
 fenetre.geometry("550x550")
 fenetre.minsize(550,300)
+
+# Ajout logo
+if getattr(sys, 'frozen', False):
+    base_path = sys._MEIPASS
+else:
+    base_path = os.path.dirname(os.path.abspath(__file__))
+
+logo_path = os.path.join(base_path, "logo", "TextifyXML_png.png")
+
+logo = tk.PhotoImage(file=logo_path)
+fenetre.iconphoto(True, logo)
 
 # Liste des fichiers
 frame_liste = tk.Frame(fenetre)
