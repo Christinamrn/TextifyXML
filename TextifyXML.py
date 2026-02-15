@@ -28,7 +28,9 @@ langues = {
         "File" : "Fichier",
         "Language" : "Langue",
         "fr" : "Français",
-        "en" : "Anglais"
+        "en" : "Anglais",
+        "view" : "Affichage",
+        "preview" : "Aperçu"
     },
 
     "en": {
@@ -53,7 +55,9 @@ langues = {
         "File" : "File",
         "Language" : "Language",
         "fr" : "French",
-        "en" : "English"
+        "en" : "English",
+        "view" : "View",
+        "preview" : "Preview"
     }
 }
 
@@ -208,6 +212,7 @@ def selection_clavier(event):
     liste.selection_set(index)
     liste.activate(index)
     mise_a_jour_etat_boutons()
+    mise_a_jour_selection()
     return "break" 
 
 def monter():
@@ -255,7 +260,53 @@ def mise_a_jour_etat_boutons(event=None):
     btn_moins.config(state="normal" if index >= 0 else "disabled")
     btn_haut.config(state="normal" if index > 0 else "disabled")
     btn_bas.config(state="normal" if index < len(fichiers_xml)-1 else "disabled")
-    
+
+def mise_a_jour_selection(event=None):
+    mise_a_jour_etat_boutons()
+    afficher_apercu()
+
+def affichage_apercus(event=None):
+    if frame_fenetre_droite.winfo_ismapped():
+        frame_fenetre_droite.pack_forget()
+    else:
+        frame_fenetre_droite.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=5, pady=15)
+
+# Affichage
+def afficher_texte(widget, contenu):
+    widget.config(state="normal")
+    widget.delete("1.0", tk.END)
+    widget.insert("1.0", contenu)
+    widget.config(state="disabled")
+
+def afficher_apercu(event=None):
+    selection = liste.curselection()
+    if not selection:
+        afficher_texte(texte_avant, "")
+        afficher_texte(texte_apres, "")
+        return
+
+    index = selection[0]
+    chemin_xml = fichiers_xml[index]
+
+    liste.selection_set(index)
+    liste.activate(index)
+
+    try:
+        # afficher XML brut
+        with open(chemin_xml, "r", encoding="utf-8") as f:
+            contenu_xml = f.read()
+        afficher_texte(texte_avant, contenu_xml)
+
+        # afficher TXT converti
+        tree = ET.parse(chemin_xml)
+        root = tree.getroot()
+        texte = "\n".join(t.strip() for t in root.itertext() if t.strip())
+        afficher_texte(texte_apres, texte)
+
+    except Exception as e:
+        afficher_texte(texte_avant, "")
+        afficher_texte(texte_apres, str(e))
+
 # Sauvegarde
 def sauvegarder_fichier():
     if not fichiers_xml:
@@ -296,7 +347,7 @@ def sauvegarder_fichier():
         messagebox.showerror(trad("error"), str(e))
 
 def convertir_fichier():
-    fichier_selectionne = liste.curselection()
+    fichier_selectionne = liste.curselection()  
     if not fichier_selectionne:
         return
     
@@ -325,21 +376,50 @@ def convertir_fichier():
 fenetre = tk.Tk()
 fenetre.title("TexifyXML")
 fenetre.geometry("550x550")
-fenetre.minsize(550,300)
+fenetre.minsize(750,750)
 
-# Ajout logo
-if getattr(sys, 'frozen', False):
-    base_path = sys._MEIPASS
-else:
-    base_path = os.path.dirname(os.path.abspath(__file__))
+frame_fenetre = tk.Frame(fenetre)
+frame_fenetre.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
-logo_path = os.path.join(base_path, "logo", "TextifyXML_png.png")
+frame_fenetre_gauche = tk.Frame(frame_fenetre)
+frame_fenetre_gauche.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=15)
 
-logo = tk.PhotoImage(file=logo_path)
-fenetre.iconphoto(True, logo)
+frame_fenetre_droite = tk.Frame(frame_fenetre)
+frame_fenetre_droite.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=5, pady=15)
+
+# Aperçu 
+frame_apercu_avant = tk.Frame(frame_fenetre_droite, bg="white", relief="sunken", bd=1, border=1)
+frame_apercu_avant.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+frame_apercu_avant.pack_propagate(False)
+
+scroll_xml = tk.Scrollbar(frame_apercu_avant)
+scroll_xml.pack(side=tk.RIGHT, fill=tk.Y)
+
+texte_avant = tk.Text(frame_apercu_avant, wrap="word")
+texte_avant.pack(fill=tk.BOTH, expand=True)
+texte_avant.config(state="disabled", cursor="arrow")
+texte_avant.bind("<Key>", lambda e: "break")
+
+texte_avant.config(yscrollcommand=scroll_xml.set)
+scroll_xml.config(command=texte_avant.yview)
+
+frame_apercu_apres = tk.Frame(frame_fenetre_droite, bg="white", relief="sunken", bd=1, border=1)
+frame_apercu_apres.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+frame_apercu_apres.pack_propagate(False)
+
+scroll_txt = tk.Scrollbar(frame_apercu_apres)
+scroll_txt.pack(side=tk.RIGHT, fill=tk.Y)
+
+texte_apres = tk.Text(frame_apercu_apres, wrap="word")
+texte_apres.pack(fill=tk.BOTH, expand=True)
+texte_apres.config(state="disabled", cursor="arrow")
+texte_apres.bind("<Key>", lambda e: "break")
+
+texte_apres.config(yscrollcommand=scroll_txt.set)
+scroll_txt.config(command=texte_apres.yview)
 
 # Liste des fichiers
-frame_liste = tk.Frame(fenetre)
+frame_liste = tk.Frame(frame_fenetre_gauche)
 frame_liste.pack(fill=tk.BOTH, expand=True, padx=15, pady=15)
 
 scrollbar = tk.Scrollbar(frame_liste)
@@ -347,28 +427,16 @@ scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
 liste = tk.Listbox(frame_liste, selectmode=tk.SINGLE, activestyle="none", yscrollcommand=scrollbar.set)
 liste.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+liste.config(exportselection=False)
 
 scrollbar.config(command=liste.yview)
 
-# bindings de la liste
-liste.bind("<<ListboxSelect>>", mise_a_jour_etat_boutons)
-
-liste.bind("<Button-1>", on_start_drag)
-liste.bind("<B1-Motion>", on_drag_motion)
-
-liste.bind("<Button-3>", clic_droit)
-
-liste.bind("<Up>", selection_clavier)
-liste.bind("<Down>", selection_clavier)
-
-liste.bind("<Delete>", supprimer_fichier)
-
 # Boutons
-frame_actions = tk.Frame(fenetre)
-frame_actions.pack(fill=tk.X, pady=5, padx=15)
+frame_boutons = tk.Frame(frame_fenetre_gauche)
+frame_boutons.pack(fill=tk.X, pady=5, padx=15)
 
 # --- tri A→Z / Z→A ---
-frame_gauche = tk.Frame(frame_actions)
+frame_gauche = tk.Frame(frame_boutons)
 frame_gauche.pack(side=tk.LEFT, anchor="w")
 
 btn_tri_az = tk.Button(frame_gauche, text="A→Z", width=5, command=trier_az)
@@ -378,7 +446,7 @@ btn_tri_za = tk.Button(frame_gauche, text="Z→A", width=5, command=trier_za)
 btn_tri_za.pack(side=tk.LEFT, padx=2)
 
 # --- + / - ---
-frame_centre = tk.Frame(frame_actions)
+frame_centre = tk.Frame(frame_boutons)
 frame_centre.pack(side=tk.LEFT, expand=True)
 
 btn_plus = tk.Button(frame_centre, text="+", width=3, command=ajouter_fichiers)
@@ -388,7 +456,7 @@ btn_moins = tk.Button(frame_centre, text="-", width=3, command=supprimer_fichier
 btn_moins.pack(side=tk.LEFT, padx=2)
 
 # --- ↑ / ↓ ---
-frame_droite = tk.Frame(frame_actions)
+frame_droite = tk.Frame(frame_boutons)
 frame_droite.pack(side=tk.RIGHT, anchor="e")
 
 btn_haut = tk.Button(frame_droite, text="⬆", width=3, command=monter)
@@ -409,6 +477,19 @@ nom_nouveau_fichier.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
 btn_sauvegarde = tk.Button(frame_bas, text=trad("save"), command=sauvegarder_fichier)
 btn_sauvegarde.pack(side=tk.LEFT, padx=5)
 
+# bindings de la liste
+liste.bind("<<ListboxSelect>>", mise_a_jour_selection)
+
+liste.bind("<Button-1>", on_start_drag)
+liste.bind("<B1-Motion>", on_drag_motion)
+
+liste.bind("<Button-3>", clic_droit)
+
+liste.bind("<Up>", selection_clavier)
+liste.bind("<Down>", selection_clavier)
+
+liste.bind("<Delete>", supprimer_fichier)
+
 # Barre de menu
 menubar = Menu(fenetre)
 filemenu = Menu(menubar, tearoff=0)
@@ -425,9 +506,28 @@ languagemenu.add_radiobutton(label=trad("fr"), variable=langue_var, value="fr", 
 languagemenu.add_radiobutton(label=trad("en"), variable=langue_var, value="en", command=lambda: changer_langue("en"))
 menubar.add_cascade(label=trad("Language"), menu=languagemenu)
 
+affichage_menu = Menu(menubar, tearoff=0)
+affichage_var = tk.BooleanVar(value=True)
+affichage_menu.add_checkbutton(label=trad("preview"), variable=affichage_var, command=affichage_apercus)
+menubar.add_cascade(label=trad("view"), menu=affichage_menu)
+
+#helpmenu = Menu(menubar, tearoff=0)
+#help.
+
 rafraichir_interface()
 rafraichir_menu_contextuel()
 mise_a_jour_etat_boutons()
 fenetre.config(menu=menubar)
+
+# Ajout logo
+if getattr(sys, 'frozen', False):
+    base_path = sys._MEIPASS
+else:
+    base_path = os.path.dirname(os.path.abspath(__file__))
+
+logo_path = os.path.join(base_path, "logo", "TextifyXML_png.png")
+
+logo = tk.PhotoImage(file=logo_path)
+fenetre.iconphoto(True, logo)
 
 fenetre.mainloop()
