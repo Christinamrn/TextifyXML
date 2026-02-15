@@ -15,6 +15,7 @@ langues = {
         "warning" : "Attention",
         "select_file_to_delete" : "Sélectionnez un fichier à supprimer.",
         "no_file_selected" : "Aucun fichier sélectionné.",
+        "delete" : "Supprimer",
         "delete?" : "Supprimer tous les fichiers de la liste ?",
         "add_filename" : "Veuillez entrer un nom de fichier.",
         "text_file" : "Fichier texte (*.txt)",
@@ -38,6 +39,7 @@ langues = {
         "warning" : "Warning",
         "select_file_to_delete" : "Select a file to delete.",
         "no_file_selected" : "No file selected.",
+        "delete" : "Delete",
         "delete?" : "Delete all files?",
         "add_filename" : "Please add a filename.",
         "text_file" : "Text file (*.txt)",
@@ -63,6 +65,7 @@ def changer_langue(nouvelle_langue):
     langue_var.set(nouvelle_langue)
     rafraichir_interface()
     rafraichir_menus()
+    rafraichir_menu_contextuel()
 
 def rafraichir_interface():
     nom_nouveau_fichier.delete(0, tk.END)
@@ -87,6 +90,10 @@ def rafraichir_menus():
 
     fenetre.config(menu=menubar)
 
+def rafraichir_menu_contextuel():
+    global menu_contextuel
+    menu_contextuel = tk.Menu(liste, tearoff=0)
+    menu_contextuel.add_command(label=trad("delete"), command=supprimer_fichier)
 
 fichiers_xml = []
 drag_index = None
@@ -167,6 +174,18 @@ def on_drag_motion(event):
         liste.activate(new_index)
         drag_index = new_index
         mise_a_jour_etat_boutons()
+
+def clic_droit(event):
+
+    index = liste.nearest(event.y)
+
+    if index >= 0:
+        liste.selection_clear(0, tk.END)
+        liste.selection_set(index)
+        liste.activate(index)
+
+        menu_contextuel.tk_popup(event.x_root, event.y_root)
+        menu_contextuel.grab_release()
 
 # Navigation clavier de la liste
 def selection_clavier(event):
@@ -297,6 +316,8 @@ liste.bind("<<ListboxSelect>>", mise_a_jour_etat_boutons)
 liste.bind("<Button-1>", on_start_drag)
 liste.bind("<B1-Motion>", on_drag_motion)
 
+liste.bind("<Button-3>", clic_droit)
+
 liste.bind("<Up>", selection_clavier)
 liste.bind("<Down>", selection_clavier)
 
@@ -365,6 +386,7 @@ languagemenu.add_radiobutton(label=trad("en"), variable=langue_var, value="en", 
 menubar.add_cascade(label=trad("Language"), menu=languagemenu)
 
 rafraichir_interface()
+rafraichir_menu_contextuel()
 mise_a_jour_etat_boutons()
 fenetre.config(menu=menubar)
 
