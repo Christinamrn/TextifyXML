@@ -95,6 +95,10 @@ def rafraichir_menus():
     languagemenu.add_radiobutton(label=trad("en"), variable=langue_var, value="en", command=lambda: changer_langue("en"))
     menubar.add_cascade(label=trad("Language"), menu=languagemenu)
 
+    affichage_menu = Menu(menubar, tearoff=0)
+    affichage_menu.add_checkbutton(label=trad("preview"), variable=affichage_var, command=affichage_apercus)
+    menubar.add_cascade(label=trad("view"), menu=affichage_menu)
+
     fenetre.config(menu=menubar)
 
 def rafraichir_menu_contextuel():
@@ -268,8 +272,10 @@ def mise_a_jour_selection(event=None):
 def affichage_apercus(event=None):
     if frame_fenetre_droite.winfo_ismapped():
         frame_fenetre_droite.pack_forget()
+        affichage_var.set(False)
     else:
         frame_fenetre_droite.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=5, pady=15)
+        affichage_var.set(True)
 
 # Affichage
 def afficher_texte(widget, contenu):
@@ -507,7 +513,7 @@ languagemenu.add_radiobutton(label=trad("en"), variable=langue_var, value="en", 
 menubar.add_cascade(label=trad("Language"), menu=languagemenu)
 
 affichage_menu = Menu(menubar, tearoff=0)
-affichage_var = tk.BooleanVar(value=True)
+affichage_var = tk.BooleanVar(value=not frame_fenetre_droite.winfo_ismapped())
 affichage_menu.add_checkbutton(label=trad("preview"), variable=affichage_var, command=affichage_apercus)
 menubar.add_cascade(label=trad("view"), menu=affichage_menu)
 
