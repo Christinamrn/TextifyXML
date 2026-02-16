@@ -40,7 +40,7 @@ langues = {
                         "'Clic droit' sur un fichier pour le convertir ou le supprimer.\n"
                         "'Sauvegarder' pour créer un fichier TXT qui combine tous les fichiers XML.",
         "about" : "À propos",
-        "about_text" : "TextifyXML v1.0\n\nCréé par Christina M."
+        "about_text" : "TextifyXML v1.0\n\nCréé par Christina M. (@christinamrn sur GitHub)"
     },
 
     "en": {
@@ -77,7 +77,7 @@ langues = {
                         "'Right-click' on a file to convert or delete it.\n"
                         "'Save' to create a TXT file that combines all XML files.",
         "about" : "About",
-        "about_text" : "TextifyXML v1.0\n\nCreated by Christina M."
+        "about_text" : "TextifyXML v1.0\n\nCreated by Christina M. (@christinamrn on GitHub)"
     }
 }
 
