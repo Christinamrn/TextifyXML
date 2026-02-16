@@ -29,8 +29,18 @@ langues = {
         "Language" : "Langue",
         "fr" : "Français",
         "en" : "Anglais",
-        "view" : "Affichage",
-        "preview" : "Aperçu"
+        "View" : "Affichage",
+        "preview" : "Aperçu",
+        "Help" : "Aide",
+        "help" : "Aide",
+        "help_texte":   "+/- : Ajouter ou supprimer des fichiers XML.\n "
+                        "Sélectionnez un fichier pour voir son aperçu.\n"
+                        "⬆/⬇ : Déplacer un fichier dans la liste.\n"
+                        "A→Z / Z→A : Trier les fichiers par ordre alphabétique.\n\n"
+                        "'Clic droit' sur un fichier pour le convertir ou le supprimer.\n"
+                        "'Sauvegarder' pour créer un fichier TXT qui combine tous les fichiers XML.",
+        "about" : "À propos",
+        "about_text" : "TextifyXML v1.0\n\nCréé par Christina M."
     },
 
     "en": {
@@ -56,8 +66,18 @@ langues = {
         "Language" : "Language",
         "fr" : "French",
         "en" : "English",
-        "view" : "View",
-        "preview" : "Preview"
+        "View" : "View",
+        "preview" : "Preview",
+        "Help" : "Help",
+        "help" : "Help",
+        "help_text" :   "+/- : Add or remove XML files.\n"
+                        "Select a file to see its preview.\n"
+                        "⬆/⬇ : Move a file up or down in the list.\n"
+                        "A→Z / Z→A : Sort files alphabetically.\n\n"
+                        "'Right-click' on a file to convert or delete it.\n"
+                        "'Save' to create a TXT file that combines all XML files.",
+        "about" : "About",
+        "about_text" : "TextifyXML v1.0\n\nCreated by Christina M."
     }
 }
 
@@ -97,7 +117,12 @@ def rafraichir_menus():
 
     affichage_menu = Menu(menubar, tearoff=0)
     affichage_menu.add_checkbutton(label=trad("preview"), variable=affichage_var, command=affichage_apercus)
-    menubar.add_cascade(label=trad("view"), menu=affichage_menu)
+    menubar.add_cascade(label=trad("View"), menu=affichage_menu)
+
+    helpmenu = Menu(menubar, tearoff=0)
+    helpmenu.add_command(label=trad("help"), command=afficher_aide)
+    helpmenu.add_command(label=trad("about"), command=afficher_a_propos)
+    menubar.add_cascade(label=trad("Help"), menu=helpmenu)
 
     fenetre.config(menu=menubar)
 
@@ -277,7 +302,7 @@ def affichage_apercus(event=None):
         frame_fenetre_droite.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=5, pady=15)
         affichage_var.set(True)
 
-# Affichage
+# Menu - Affichage
 def afficher_texte(widget, contenu):
     widget.config(state="normal")
     widget.delete("1.0", tk.END)
@@ -312,6 +337,19 @@ def afficher_apercu(event=None):
     except Exception as e:
         afficher_texte(texte_avant, "")
         afficher_texte(texte_apres, str(e))
+
+# Menu - Aide
+def afficher_aide():
+    messagebox.showinfo(
+        trad("help"),
+        trad("help_text")
+    )
+
+def afficher_a_propos():
+    messagebox.showinfo(
+        trad("about"),
+        trad("about_text")
+    )
 
 # Sauvegarde
 def sauvegarder_fichier():
@@ -380,7 +418,7 @@ def convertir_fichier():
 # === Interface Tk ===
 
 fenetre = tk.Tk()
-fenetre.title("TexifyXML")
+fenetre.title("TextifyXML")
 fenetre.geometry("550x550")
 fenetre.minsize(750,750)
 
@@ -515,10 +553,12 @@ menubar.add_cascade(label=trad("Language"), menu=languagemenu)
 affichage_menu = Menu(menubar, tearoff=0)
 affichage_var = tk.BooleanVar(value=not frame_fenetre_droite.winfo_ismapped())
 affichage_menu.add_checkbutton(label=trad("preview"), variable=affichage_var, command=affichage_apercus)
-menubar.add_cascade(label=trad("view"), menu=affichage_menu)
+menubar.add_cascade(label=trad("View"), menu=affichage_menu)
 
-#helpmenu = Menu(menubar, tearoff=0)
-#help.
+helpmenu = Menu(menubar, tearoff=0)
+helpmenu.add_command(label=trad("help"), command=afficher_aide)
+helpmenu.add_command(label=trad("about"), command=afficher_a_propos)
+menubar.add_cascade(label=trad("Help"), menu=helpmenu)
 
 rafraichir_interface()
 rafraichir_menu_contextuel()
