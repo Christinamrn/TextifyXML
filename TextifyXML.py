@@ -415,6 +415,13 @@ def convertir_fichier():
     except Exception as e:
         messagebox.showerror(trad("error"), str(e))
 
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
 # === Interface Tk ===
 
 fenetre = tk.Tk()
@@ -566,12 +573,14 @@ mise_a_jour_etat_boutons()
 fenetre.config(menu=menubar)
 
 # Ajout logo
-if getattr(sys, 'frozen', False):
-    base_path = sys._MEIPASS
-else:
-    base_path = os.path.dirname(os.path.abspath(__file__))
+logo_path = resource_path("logo/TextifyXML_png.png")
 
-logo_path = os.path.join(base_path, "logo", "TextifyXML_png.png")
+try:
+    logo = tk.PhotoImage(file=logo_path)
+    fenetre.iconphoto(True, logo)
+except Exception:
+    pass
+
 
 logo = tk.PhotoImage(file=logo_path)
 fenetre.iconphoto(True, logo)
