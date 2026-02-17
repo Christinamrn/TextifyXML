@@ -6,9 +6,9 @@ from PyQt6.QtWidgets import (
     QApplication, QWidget, QFileDialog, QMessageBox,
     QListWidget, QListWidgetItem, QTextEdit, QPushButton, QLineEdit,
     QHBoxLayout, QVBoxLayout, QMenu, QSplitter, QMenuBar, QDialog,
-    QDialog, QLabel
+    QDialog, QLabel, QFrame 
 )
-from PyQt6.QtGui import QAction, QCursor, QActionGroup, QIcon
+from PyQt6.QtGui import QAction, QCursor, QActionGroup, QIcon, QImage, QPixmap
 from PyQt6.QtCore import Qt
 
 # --- traductions ---
@@ -44,11 +44,11 @@ langues = {
         "help_text":   "+/- : Ajouter ou supprimer des fichiers XML.\n "
                         "Sélectionnez un fichier pour voir son aperçu.\n"
                         "⬆/⬇ : Déplacer un fichier dans la liste.\n"
-                        "A→Z / Z→A : Trier les fichiers par ordre alphabétique.\n\n"
-                        "'Clic droit' sur un fichier pour le convertir ou le supprimer.\n"
-                        "'Sauvegarder' pour créer un fichier TXT qui combine tous les fichiers XML.",
+                        "A→Z / Z→A : Trier les fichiers par ordre alphabétique.\n"
+                        "'Clic droit' : Convertir ou supprimer un fichier.\n"
+                        "'Sauvegarder' : Créer un fichier TXT qui combine tous les fichiers XML.",
         "about" : "À propos",
-        "about_text" : "TextifyXML v1.1 (Version Qt6)\n\nCréé par Christina M. (@christinamrn sur GitHub)",
+        "about_text" : "TextifyXML v1.1 (Version Qt6)\n18 février 2026\n\nCréé par Christina M. (@christinamrn sur GitHub)",
         "yes": "Oui",
         "no": "Non"
     },
@@ -83,11 +83,11 @@ langues = {
         "help_text" :   "+/- : Add or remove XML files.\n"
                         "Select a file to see its preview.\n"
                         "⬆/⬇ : Move a file up or down in the list.\n"
-                        "A→Z / Z→A : Sort files alphabetically.\n\n"
-                        "'Right-click' on a file to convert or delete it.\n"
-                        "'Save' to create a TXT file that combines all XML files.",
+                        "A→Z / Z→A : Sort files alphabetically.\n"
+                        "'Right-click' : Convert or delete a file.\n"
+                        "'Save' : Create a TXT file that combines all XML files.",
         "about" : "About",
-        "about_text" : "TextifyXML v1.1 (Qt6 Version)\n\nCreated by Christina M. (@christinamrn on GitHub)",
+        "about_text" : "TextifyXML v1.1 (Qt6 Version)\n18 February 2026\n\nCreated by Christina M. (@christinamrn on GitHub)",
         "yes": "Yes",
         "no": "No"
     }
@@ -258,19 +258,48 @@ def afficher_apercu(event=None):
         afficher_texte(preview_xml, "")
         afficher_texte(preview_txt, str(e))
 
+def raccourci_display(raccourci_nom, raccourci_fonction, parent=None):
+    frame = QFrame(parent)
+    frame.setAutoFillBackground(True)
+    frame.setStyleSheet("QFrame { background-color: palette(base); border-radius: 5px; padding: 2px; }")
+    layout = QHBoxLayout()
+    frame.setLayout(layout)
+    nom_label = QLabel(raccourci_nom)
+    nom_label.setStyleSheet("QLabel { font-weight: bold; }")
+    fonction_label = QLabel(raccourci_fonction)
+    layout.addWidget(nom_label)
+    layout.addWidget(fonction_label)
+    return frame
+
+def raccourci_liste_aide(key_dict_text, parent=None):
+    raccourci_vlayout = QVBoxLayout()
+    for line in key_dict_text.splitlines():
+        if ":" in line:
+            raccourci_nom, raccourci_fonction = line.split(":", 1)
+            raccourci_frame = raccourci_display(raccourci_nom.strip(), raccourci_fonction.strip(), parent)
+            raccourci_vlayout.addWidget(raccourci_frame)
+    return raccourci_vlayout
+
 def afficher_aide():
     aide_dialog = QDialog(fenetre)
     aide_dialog.setWindowTitle(trad("help"))
     aide_layout = QVBoxLayout(aide_dialog)
-    aide_label = QLabel(trad("help_text"))
-    aide_layout.addWidget(aide_label)
+    raccourcis_layout = raccourci_liste_aide(trad("help_text"), aide_dialog)
+    aide_layout.addLayout(raccourcis_layout)
     aide_dialog.exec()
 
 def afficher_a_propos():
     a_propos_dialog = QDialog(fenetre)
     a_propos_dialog.setWindowTitle(trad("about"))
     a_propos_layout = QVBoxLayout(a_propos_dialog)
+    logo_app = QImage(resource_path('logo/TextifyXML_png.png'))
+    logo_app = logo_app.scaled(128, 128, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+    logo_label = QLabel()
+    logo_label.setPixmap(QPixmap.fromImage(logo_app))
+    logo_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+    a_propos_layout.addWidget(logo_label)
     a_propos_label = QLabel(trad("about_text"))
+    a_propos_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
     a_propos_layout.addWidget(a_propos_label)
     a_propos_dialog.exec()
 
