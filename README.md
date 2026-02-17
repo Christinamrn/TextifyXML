@@ -36,10 +36,10 @@ python TextifyXML.py
 To run TextifyXML as a standalone application, build it using the appropriate command for your operating system. The executable will be available in the `/dist` directory.
 ##### Windows (.exe)
 ```bash
-python -m PyInstaller --onefile --windowed --icon ".\logo\TextifyXML_ico.ico" --add-data ".\logo\TextifyXML_png.png;logo" TextifyXML.py
+python -m PyInstaller --onefile --windowed --icon ".\logo\TextifyXML_ico.ico" --add-data ".\logo\TextifyXML_png.png;logo" --name "TextifyXML" TextifyXML.py
 ```
 
 ##### macOS (.app)
 ```bash
-python -m PyInstaller --onefile --windowed --icon "./logo/TextifyXML_icns.icns" --add-data "./logo/TextifyXML_png.png:logo" TextifyXML.py
+python -m PyInstaller --onefile --windowed --icon "./logo/TextifyXML_icns.icns" --add-data "./logo/TextifyXML_png.png:logo" --name "TextifyXML" TextifyXML.py
 ```
