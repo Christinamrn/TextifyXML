@@ -101,6 +101,7 @@ def trad(cle):
 
 
 fichiers_xml = []
+last_splitter_sizes = None
 
 class FileListWidget(QListWidget):
     def dropEvent(self, event):
@@ -228,9 +229,33 @@ def mise_a_jour_selection(event=None):
     afficher_apercu()
 
 def affichage_apercus_xml_txt(event=None):
-    visible = preview_xml.isVisible()
-    preview_xml.setVisible(not visible)
-    preview_txt.setVisible(not visible)
+    global last_splitter_sizes
+    # Use the right_widget visibility (which contains both previews)
+    visible = right_widget.isVisible()
+    if visible:
+        # remember current sizes so we can restore them when showing again
+        try:
+            last_splitter_sizes = splitter.sizes()
+        except Exception:
+            last_splitter_sizes = None
+        right_widget.setVisible(False)
+        # expand left pane to occupy available space
+        try:
+            total = max(splitter.width(), 1)
+            splitter.setSizes([total, 0])
+        except Exception:
+            pass
+    else:
+        right_widget.setVisible(True)
+        # restore previous sizes if available, otherwise give a reasonable default
+        try:
+            if last_splitter_sizes and len(last_splitter_sizes) == 2:
+                splitter.setSizes(last_splitter_sizes)
+            else:
+                w = max(splitter.width(), 1)
+                splitter.setSizes([int(w*0.6), int(w*0.4)])
+        except Exception:
+            pass
 
 def afficher_texte(widget, contenu):
     widget.setReadOnly(False)
