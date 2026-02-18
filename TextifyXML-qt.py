@@ -102,6 +102,7 @@ def trad(cle):
 
 fichiers_xml = []
 last_splitter_sizes = None
+save_action = None
 
 class FileListWidget(QListWidget):
     def dropEvent(self, event):
@@ -218,6 +219,8 @@ def mise_a_jour_etat_boutons(event=None):
     btn_tri_az.setEnabled(len(fichiers_xml) >= 2)
     btn_tri_za.setEnabled(len(fichiers_xml) >= 2)
     btn_sauvegarde.setEnabled(has_files)
+    if save_action:
+        save_action.setEnabled(has_files)
 
     index = liste.currentRow()
     btn_moins.setEnabled(index >= 0 and has_files)
@@ -402,11 +405,12 @@ menu_bar = QMenuBar()
 main_layout.setMenuBar(menu_bar)
 
 def creer_menus():
+    global save_action
     menu_bar.clear()
     filemenu = menu_bar.addMenu(trad("File"))
     filemenu.addAction(trad("new"), lambda: nouveau())
     filemenu.addAction(trad("add_xml_files"), lambda: ajouter_fichiers())
-    filemenu.addAction(trad("save"), lambda: sauvegarder_fichier())
+    save_action = filemenu.addAction(trad("save"), lambda: sauvegarder_fichier())
     filemenu.addSeparator()
     filemenu.addAction(trad("quit"), lambda: QApplication.instance().quit())
 
