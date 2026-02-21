@@ -45,10 +45,14 @@ langues = {
         "Help" : "Aide",
         "help" : "Aide",
         "help_text":   "+/- : Ajouter ou supprimer des fichiers XML.\n "
-                        "Sélectionner un fichier pour voir son aperçu.\n"
+                        "Suppr : Supprimer les fichiers sélectionnés.\n"
+                        "Clic gauche : Sélectionner un fichier pour voir son aperçu.\n"
+                        "Clic droit : Convertir ou supprimer un fichier.\n"
+                        "Ctrl + clic gauche : Sélectionner plusieurs fichiers.\n"
+                        "Ctrl + A : Sélectionner tous les fichiers.\n"
+                        "Ctrl + D : Désélectionner tous les fichiers.\n"
                         "⬆/⬇ : Déplacer un fichier dans la liste.\n"
                         "A→Z / Z→A : Trier les fichiers par ordre alphabétique.\n"
-                        "'Clic droit' : Convertir ou supprimer un fichier.\n"
                         "'Sauvegarder' : Créer un fichier TXT qui combine tous les fichiers XML.",
         "about" : "À propos",
         "about_text" : "TextifyXML v1.2 (Version Qt6)\n22 février 2026\n\nCréé par Christina M. (@christinamrn sur GitHub)",
@@ -87,10 +91,14 @@ langues = {
         "Help" : "Help",
         "help" : "Help",
         "help_text" :   "+/- : Add or remove XML files.\n"
-                        "Select a file to see its preview.\n"
+                        "Delete : Remove selected files.\n"
+                        "Left-click : Select a file to see its preview.\n"
+                        "Right-click : Convert or delete a file.\n"
+                        "Ctrl + left-click : Select multiple files.\n"
+                        "Ctrl + A : Select all files.\n"
+                        "Ctrl + D : Deselect all files.\n"
                         "⬆/⬇ : Move a file up or down in the list.\n"
                         "A→Z / Z→A : Sort files alphabetically.\n"
-                        "'Right-click' : Convert or delete a file.\n"
                         "'Save' : Create a TXT file that combines all XML files.",
         "about" : "About",
         "about_text" : "TextifyXML v1.2 (Qt6 Version)\n22 February 2026\n\nCreated by Christina M. (@christinamrn on GitHub)",
