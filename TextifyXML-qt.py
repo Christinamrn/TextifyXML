@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import (
     QApplication, QWidget, QFileDialog, QMessageBox,
     QListWidget, QListWidgetItem, QTextEdit, QPushButton, QLineEdit,
     QHBoxLayout, QVBoxLayout, QMenu, QSplitter, QMenuBar, QDialog,
-    QDialog, QLabel, QFrame 
+    QDialog, QLabel, QFrame, QCheckBox
 )
 from PyQt6.QtGui import QAction, QCursor, QActionGroup, QIcon, QImage, QPixmap
 from PyQt6.QtCore import Qt
@@ -19,11 +19,14 @@ langues = {
         "add_xml_files" : "Ajouter des fichiers XML",
         "file_type" : "Fichiers XML (*.xml)",
         "save" : "Sauvegarder",
+        "display_save_preview" : "Aperçu avant sauvegarde",
+        "add_horizontal_line" : "Ligne de séparation",
         "error" : "Erreur",
-        "select_file": "Sélectionnez un fichier",
+        "cancel" : "Annuler",
+        "select_file": "Sélectionner un fichier",
         "convert_file" : "Convertir ce fichier",
         "warning" : "Attention",
-        "select_file_to_delete" : "Sélectionnez un fichier à supprimer.",
+        "select_file_to_delete" : "Sélectionner un fichier à supprimer.",
         "no_file_selected" : "Aucun fichier sélectionné.",
         "delete" : "Supprimer",
         "delete?" : "Supprimer tous les fichiers de la liste ?",
@@ -48,7 +51,7 @@ langues = {
                         "'Clic droit' : Convertir ou supprimer un fichier.\n"
                         "'Sauvegarder' : Créer un fichier TXT qui combine tous les fichiers XML.",
         "about" : "À propos",
-        "about_text" : "TextifyXML v1.1 (Version Qt6)\n18 février 2026\n\nCréé par Christina M. (@christinamrn sur GitHub)",
+        "about_text" : "TextifyXML v1.2 (Version Qt6)\n22 février 2026\n\nCréé par Christina M. (@christinamrn sur GitHub)",
         "yes": "Oui",
         "no": "Non"
     },
@@ -58,7 +61,10 @@ langues = {
         "add_xml_files" : "Add XML files",
         "file_type" : "XML Files (*.xml)",
         "save": "Save",
+        "display_save_preview" : "Preview before saving",
+        "add_horizontal_line" : "Horizontal line",
         "error" : "Error",
+        "cancel" : "Cancel",
         "select_file" : "Select a file",
         "convert_file" : "Convert this file",
         "warning" : "Warning",
@@ -87,7 +93,7 @@ langues = {
                         "'Right-click' : Convert or delete a file.\n"
                         "'Save' : Create a TXT file that combines all XML files.",
         "about" : "About",
-        "about_text" : "TextifyXML v1.1 (Qt6 Version)\n18 February 2026\n\nCreated by Christina M. (@christinamrn on GitHub)",
+        "about_text" : "TextifyXML v1.2 (Qt6 Version)\n22 February 2026\n\nCreated by Christina M. (@christinamrn on GitHub)",
         "yes": "Yes",
         "no": "No"
     }
@@ -103,6 +109,10 @@ def trad(cle):
 fichiers_xml = []
 last_splitter_sizes = None
 save_action = None
+preview_save_action = None
+global with_horizontal_line
+with_horizontal_line = True
+horizontal_line = "--------"
 
 class FileListWidget(QListWidget):
     def keyPressEvent(self, event):
@@ -238,9 +248,12 @@ def mise_a_jour_etat_boutons(event=None):
     has_files = len(fichiers_xml) > 0
     btn_tri_az.setEnabled(len(fichiers_xml) >= 2)
     btn_tri_za.setEnabled(len(fichiers_xml) >= 2)
+    btn_sauvegarde_preview.setEnabled(has_files)
     btn_sauvegarde.setEnabled(has_files)
     if save_action:
         save_action.setEnabled(has_files)
+    if preview_save_action:
+        preview_save_action.setEnabled(has_files)
 
     index = liste.currentRow()
     btn_moins.setEnabled(index >= 0 and has_files)
@@ -299,8 +312,8 @@ def afficher_apercu(event=None):
         texte = "\n".join(t.strip() for t in root.itertext() if t.strip())
         afficher_texte(preview_txt, texte)
     except Exception as e:
-        afficher_texte(preview_xml, "")
-        afficher_texte(preview_txt, str(e))
+        afficher_texte(preview_xml, trad("error") + ": " + str(e))
+        afficher_texte(preview_txt,  trad("error") + ": " + str(e))
 
 def raccourci_display(raccourci_nom, raccourci_fonction, parent=None):
     frame = QFrame(parent)
@@ -347,6 +360,64 @@ def afficher_a_propos():
     a_propos_layout.addWidget(a_propos_label)
     a_propos_dialog.exec()
 
+def affichage_texte_final(with_horizontal_line, widget=None):
+    try:
+        contenu_total = []
+        for fichier in fichiers_xml:
+            tree = ET.parse(fichier)
+            root = tree.getroot()
+            texte = "\n".join(t.strip() for t in root.itertext() if t.strip())
+            contenu_total.append(texte)
+
+        if with_horizontal_line:
+            separator = "\n\n"+ horizontal_line +"\n\n"
+            resultat = separator.join(contenu_total)
+
+        else:
+            resultat = "\n\n\n".join(contenu_total)
+        
+        if widget:
+            widget.setPlainText(resultat)
+        else:
+            return resultat
+
+    except Exception as e:
+        if widget:
+            widget.setPlainText(trad("error") + ": " + str(e))
+        else:
+            return trad("error") + ": " + str(e)
+
+def afficher_sauvegarde_fichier():
+    sauvegarder_fichier_dialog = QDialog(fenetre)
+    sauvegarder_fichier_dialog.setWindowTitle(trad("display_save_preview"))
+    sauvegarder_fichier_dialog.resize(600, 400)
+    sauvegarder_fichier_layout = QVBoxLayout(sauvegarder_fichier_dialog)
+    sauvegarder_fichier_preview = QTextEdit()
+    sauvegarder_fichier_preview.setReadOnly(False)
+    sauvegarder_fichier_preview.setPlainText("")
+    sauvegarder_fichier_preview.setReadOnly(True)
+    sauvegarder_fichier_layout.addWidget(sauvegarder_fichier_preview)
+    try:
+        affichage_texte_final(with_horizontal_line, sauvegarder_fichier_preview)
+
+        sauvegarder_fichier_layout_buttons = QHBoxLayout()
+        sauvegarder_fichier_lines_checkbox = QCheckBox(trad("add_horizontal_line"))
+        sauvegarder_fichier_lines_checkbox.setCheckable(True)
+        sauvegarder_fichier_lines_checkbox.setChecked(with_horizontal_line)
+        sauvegarder_fichier_lines_checkbox.toggled.connect(lambda checked: globals().update(with_horizontal_line=checked))
+        sauvegarder_fichier_lines_checkbox.toggled.connect(lambda checked: affichage_texte_final(checked, sauvegarder_fichier_preview))
+        sauvegarder_fichier_layout_buttons.addWidget(sauvegarder_fichier_lines_checkbox)
+        sauvegarder_fichier_layout.addLayout(sauvegarder_fichier_layout_buttons)
+        sauvegarder_fichier_accepter_button = QPushButton(trad("save"))
+        sauvegarder_fichier_accepter_button.clicked.connect(lambda: sauvegarder_fichier())
+        sauvegarder_fichier_annuler_button = QPushButton(trad("cancel"))
+        sauvegarder_fichier_annuler_button.clicked.connect(lambda: sauvegarder_fichier_dialog.reject())
+        sauvegarder_fichier_layout_buttons.addWidget(sauvegarder_fichier_accepter_button)
+        sauvegarder_fichier_layout_buttons.addWidget(sauvegarder_fichier_annuler_button)
+    except Exception as e:
+        sauvegarder_fichier_preview.setPlainText(trad("error") + ": " + str(e))
+    sauvegarder_fichier_dialog.exec()
+
 def sauvegarder_fichier():
     if not fichiers_xml:
         QMessageBox.warning(fenetre, trad("warning"), trad("no_file_selected"))
@@ -362,15 +433,8 @@ def sauvegarder_fichier():
         return
 
     try:
-        contenu_total = []
-        for fichier in fichiers_xml:
-            tree = ET.parse(fichier)
-            root = tree.getroot()
-            texte = "\n".join(t.strip() for t in root.itertext() if t.strip())
-            contenu_total.append(texte)
-
-        resultat = "\n\n\n".join(contenu_total)
-
+        resultat = affichage_texte_final(with_horizontal_line)
+        
         with open(chemin_final, "w", encoding="utf-8") as f:
             f.write(resultat)
 
@@ -422,11 +486,13 @@ main_layout.setMenuBar(menu_bar)
 
 def creer_menus():
     global save_action
+    global preview_save_action
     menu_bar.clear()
     filemenu = menu_bar.addMenu(trad("File"))
     filemenu.addAction(trad("new"), lambda: nouveau())
     filemenu.addAction(trad("add_xml_files"), lambda: ajouter_fichiers())
     save_action = filemenu.addAction(trad("save"), lambda: sauvegarder_fichier())
+    preview_save_action = filemenu.addAction(trad("display_save_preview"), lambda: afficher_sauvegarde_fichier())
     filemenu.addSeparator()
     filemenu.addAction(trad("quit"), lambda: QApplication.instance().quit())
 
@@ -506,8 +572,10 @@ splitter.addWidget(right_widget)
 
 bottom_layout = QHBoxLayout()
 nom_nouveau_fichier = QLineEdit(trad("filename"))
+btn_sauvegarde_preview = QPushButton(trad("preview"))
 btn_sauvegarde = QPushButton(trad("save"))
 bottom_layout.addWidget(nom_nouveau_fichier)
+bottom_layout.addWidget(btn_sauvegarde_preview)
 bottom_layout.addWidget(btn_sauvegarde)
 main_layout.addLayout(bottom_layout)
 
@@ -517,6 +585,7 @@ btn_haut.clicked.connect(monter)
 btn_bas.clicked.connect(descendre)
 btn_tri_az.clicked.connect(trier_az)
 btn_tri_za.clicked.connect(trier_za)
+btn_sauvegarde_preview.clicked.connect(afficher_sauvegarde_fichier)
 btn_sauvegarde.clicked.connect(sauvegarder_fichier)
 
 def menu_contextuel():
@@ -532,6 +601,7 @@ def changer_langue(nouvelle_langue):
     global langue_activee
     langue_activee = nouvelle_langue
     nom_nouveau_fichier.setText(trad("filename"))
+    btn_sauvegarde_preview.setText(trad("preview"))
     btn_sauvegarde.setText(trad("save"))
     creer_menus()
 
