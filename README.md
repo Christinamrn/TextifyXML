@@ -8,7 +8,7 @@ I created this little app following a discussion with a friend who was strugglin
 
 I made a first version which was just a button to select a file then it created a text file copying the same filename. It was great but a bit limited for someone who needed to convert __plenty__ of files into __one single__ text file.
 
-[Update : 17/02/26] I did a new version also supported by __macOS__ with __Intel__ processors. I had to use _PyQt6_ instead of _tkinter_. The new file is named `TextifyXML-qt.py` and has similar functions.
+[Update : v1.1 - 17/02/26] I did a new version also supported by __macOS__ with __Intel__ processors. I had to use _PyQt6_ instead of _tkinter_. The new file is named `TextifyXML-qt.py` and has similar functions.
 
 ### About this version
 This version includes :
@@ -22,6 +22,13 @@ This version includes :
 - Preview for each file (XML and TXT)
 - Add a personalised output filename
 - Save the output file
+
+[Update : v1.2 - 22/02/26]
+- Add multiple files with drag and drop
+- Multiple selection
+- Suppr as a keyboard shortcut
+- Preview before saving for the output file
+- Add/Remove horizontal line as a separator between files translated in the output file
 
 ### Convert your XML files with TextifyXML
 The following command lines are for the tkinter version. To use the PyQt6 version, replace `TextifyXML.py` by  `TextifyXML-qt.py`.
