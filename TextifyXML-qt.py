@@ -42,7 +42,7 @@ langues = {
         "Help" : "Aide",
         "help" : "Aide",
         "help_text":   "+/- : Ajouter ou supprimer des fichiers XML.\n "
-                        "Sélectionnez un fichier pour voir son aperçu.\n"
+                        "Sélectionner un fichier pour voir son aperçu.\n"
                         "⬆/⬇ : Déplacer un fichier dans la liste.\n"
                         "A→Z / Z→A : Trier les fichiers par ordre alphabétique.\n"
                         "'Clic droit' : Convertir ou supprimer un fichier.\n"
@@ -105,9 +105,28 @@ last_splitter_sizes = None
 save_action = None
 
 class FileListWidget(QListWidget):
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key.Key_Delete:
+            supprimer_fichier()
+        else:
+            super().keyPressEvent(event)
+                
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasUrls() or event.mimeData().hasFormat("text/uri-list"):
+            event.acceptProposedAction()
+        else:
+            super().dragEnterEvent(event)
+
     def dropEvent(self, event):
-        super().dropEvent(event)
-        rafraichir_liste_drag_drop()
+        if event.mimeData().hasUrls():
+            for url in event.mimeData().urls():
+                path = url.toLocalFile()
+                if os.path.isfile(path) and path.lower().endswith('.xml'):
+                    fichiers_xml.append(path)
+            rafraichir_liste()
+        else:
+            super().dropEvent(event)
+            rafraichir_liste_drag_drop()
 
 def ajouter_fichiers():
     global fichiers_xml
@@ -123,11 +142,12 @@ def ajouter_fichiers():
 
 def supprimer_fichier(event=None):
     global fichiers_xml
-    index = liste.currentRow()
-    if index < 0:
+    selected_indexes = [item.row() for item in liste.selectedIndexes()]
+    if not selected_indexes:
         QMessageBox.warning(fenetre, trad("warning"), trad("select_file_to_delete"))
         return
-    fichiers_xml.pop(index)
+    for index in sorted(selected_indexes, reverse=True):
+        fichiers_xml.pop(index)
     rafraichir_liste()
 
 def tout_supprimer(event=None):
@@ -233,16 +253,13 @@ def mise_a_jour_selection(event=None):
 
 def affichage_apercus_xml_txt(event=None):
     global last_splitter_sizes
-    # Use the right_widget visibility (which contains both previews)
     visible = right_widget.isVisible()
     if visible:
-        # remember current sizes so we can restore them when showing again
         try:
             last_splitter_sizes = splitter.sizes()
         except Exception:
             last_splitter_sizes = None
         right_widget.setVisible(False)
-        # expand left pane to occupy available space
         try:
             total = max(splitter.width(), 1)
             splitter.setSizes([total, 0])
@@ -250,7 +267,6 @@ def affichage_apercus_xml_txt(event=None):
             pass
     else:
         right_widget.setVisible(True)
-        # restore previous sizes if available, otherwise give a reasonable default
         try:
             if last_splitter_sizes and len(last_splitter_sizes) == 2:
                 splitter.setSizes(last_splitter_sizes)
@@ -450,7 +466,7 @@ left_widget = QWidget()
 left_layout = QVBoxLayout(left_widget)
 
 liste = FileListWidget()
-liste.setSelectionMode(QListWidget.SelectionMode.SingleSelection)
+liste.setSelectionMode(QListWidget.SelectionMode.ExtendedSelection)
 liste.setDragDropMode(QListWidget.DragDropMode.InternalMove)
 liste.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
 liste.customContextMenuRequested.connect(lambda pos: menu_contextuel())
