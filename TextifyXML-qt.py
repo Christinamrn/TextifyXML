@@ -23,6 +23,8 @@ langues = {
         "add_horizontal_line" : "Ligne de séparation",
         "error" : "Erreur",
         "cancel" : "Annuler",
+        "list" : "Liste des fichiers XML",
+        "sort" : "Tri de la liste",
         "select_file": "Sélectionner un fichier",
         "convert_file" : "Convertir ce fichier",
         "warning" : "Attention",
@@ -35,6 +37,7 @@ langues = {
         "done" : "Terminé",
         "saved" : "Fichier créé : ",
         "filename" : "nom_du_fichier",
+        "filename_label" : "Nom du fichier TXT contenant tous les textes extraits",
         "quit" : "Quitter",
         "File" : "Fichier",
         "Language" : "Langue",
@@ -69,6 +72,8 @@ langues = {
         "add_horizontal_line" : "Horizontal line",
         "error" : "Error",
         "cancel" : "Cancel",
+        "list" : "List of XML files",
+        "sort" : "Sort list",
         "select_file" : "Select a file",
         "convert_file" : "Convert this file",
         "warning" : "Warning",
@@ -81,6 +86,7 @@ langues = {
         "done" : "Done",
         "saved" : "File created : ",
         "filename" : "name_of_file",
+        "filename_label" : "Name of the TXT file containing all extracted texts",
         "quit" : "Quit",
         "File" : "File",
         "Language" : "Language",
@@ -499,8 +505,9 @@ def creer_menus():
     filemenu = menu_bar.addMenu(trad("File"))
     filemenu.addAction(trad("new"), lambda: nouveau())
     filemenu.addAction(trad("add_xml_files"), lambda: ajouter_fichiers())
-    save_action = filemenu.addAction(trad("save"), lambda: sauvegarder_fichier())
+    filemenu.addSeparator()
     preview_save_action = filemenu.addAction(trad("display_save_preview"), lambda: afficher_sauvegarde_fichier())
+    save_action = filemenu.addAction(trad("save"), lambda: sauvegarder_fichier())
     filemenu.addSeparator()
     filemenu.addAction(trad("quit"), lambda: QApplication.instance().quit())
 
@@ -539,6 +546,8 @@ main_layout.addWidget(splitter)
 left_widget = QWidget()
 left_layout = QVBoxLayout(left_widget)
 
+liste_label = QLabel(trad("list"))
+left_layout.addWidget(liste_label)
 liste = FileListWidget()
 liste.setSelectionMode(QListWidget.SelectionMode.ExtendedSelection)
 liste.setDragDropMode(QListWidget.DragDropMode.InternalMove)
@@ -555,6 +564,11 @@ btn_moins = QPushButton('-')
 btn_haut = QPushButton('⬆')
 btn_bas = QPushButton('⬇')
 
+btn_tri_az.setToolTip(trad("sort") + " (A→Z)")
+btn_tri_za.setToolTip(trad("sort") + " (Z→A)")
+btn_plus.setToolTip(trad("add_xml_files"))
+btn_moins.setToolTip(trad("delete"))
+
 btn_layout.addWidget(btn_tri_az)
 btn_layout.addWidget(btn_tri_za)
 btn_layout.addWidget(btn_plus)
@@ -569,17 +583,22 @@ splitter.addWidget(left_widget)
 right_widget = QWidget()
 right_layout = QVBoxLayout(right_widget)
 
+preview_xml_label = QLabel(trad("preview") + " XML")
+preview_txt_label = QLabel(trad("preview") + " TXT")
 preview_xml = QTextEdit()
 preview_txt = QTextEdit()
 preview_xml.setReadOnly(True)
 preview_txt.setReadOnly(True)
+right_layout.addWidget(preview_xml_label)
 right_layout.addWidget(preview_xml)
+right_layout.addWidget(preview_txt_label)
 right_layout.addWidget(preview_txt)
 
 splitter.addWidget(right_widget)
 
 bottom_layout = QHBoxLayout()
 nom_nouveau_fichier = QLineEdit(trad("filename"))
+nom_nouveau_fichier.setToolTip(trad("filename_label"))
 btn_sauvegarde_preview = QPushButton(trad("preview"))
 btn_sauvegarde = QPushButton(trad("save"))
 bottom_layout.addWidget(nom_nouveau_fichier)
@@ -594,6 +613,7 @@ btn_bas.clicked.connect(descendre)
 btn_tri_az.clicked.connect(trier_az)
 btn_tri_za.clicked.connect(trier_za)
 btn_sauvegarde_preview.clicked.connect(afficher_sauvegarde_fichier)
+btn_sauvegarde_preview.setToolTip(trad("display_save_preview"))
 btn_sauvegarde.clicked.connect(sauvegarder_fichier)
 
 def menu_contextuel():
@@ -608,9 +628,21 @@ def menu_contextuel():
 def changer_langue(nouvelle_langue):
     global langue_activee
     langue_activee = nouvelle_langue
+    nom_nouveau_fichier.setToolTip(trad("filename_label"))
     nom_nouveau_fichier.setText(trad("filename"))
+
+    btn_tri_az.setToolTip(trad("sort") + " (A→Z)")
+    btn_tri_za.setToolTip(trad("sort") + " (Z→A)")
+    btn_plus.setToolTip(trad("add_xml_files"))
+    btn_moins.setToolTip(trad("delete"))
+
     btn_sauvegarde_preview.setText(trad("preview"))
+    btn_sauvegarde_preview.setToolTip(trad("display_save_preview"))
     btn_sauvegarde.setText(trad("save"))
+
+    liste_label.setText(trad("list"))
+    preview_xml_label.setText(trad("preview") + " XML")
+    preview_txt_label.setText(trad("preview") + " TXT")
     creer_menus()
 
 creer_menus()
