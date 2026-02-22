@@ -8,7 +8,7 @@ I created this little app following a discussion with a friend who was strugglin
 
 I made a first version which was just a button to select a file then it created a text file copying the same filename. It was great but a bit limited for someone who needed to convert __plenty__ of files into __one single__ text file.
 
-[Update : v1.1 - 17/02/26] I did a new version also supported by __macOS__ with __Intel__ processors. I had to use _PyQt6_ instead of _tkinter_. The new file is named `TextifyXML-qt.py` and has similar functions.
+[Update : v1.1 - 17/02/26] I did a new version also supported by __macOS__ with __Intel__ processors. I had to use _PyQt6_ instead of _tkinter_. The new file is named `TextifyXML-qt.py` and has similar functions. Upcoming features will only be develop for PyQt6 version.
 
 ### About this version
 This version includes :
@@ -31,22 +31,22 @@ This version includes :
 - Add/Remove horizontal line as a separator between files translated in the output file
 
 ### Convert your XML files with TextifyXML
-The following command lines are for the tkinter version. To use the PyQt6 version, replace `TextifyXML.py` by  `TextifyXML-qt.py`.
+The following command lines are for the PyQt6 version. To use the tk version, replace `TextifyXML-qt.py` by  `TextifyXML-tk.py`.
 
 #### Command line
 To run TextifyXML directly from the source using Python.
 ```bash
-python TextifyXML.py
+python TextifyXML-qt.py
 ```
 
 #### PyInstaller
 To run TextifyXML as a standalone application, build it using the appropriate command for your operating system. The executable will be available in the `/dist` directory.
 ##### Windows (.exe)
 ```bash
-python -m PyInstaller --onefile --windowed --icon ".\logo\TextifyXML_ico.ico" --add-data ".\logo\TextifyXML_png.png;logo" --name "TextifyXML" TextifyXML.py
+python -m PyInstaller --onefile --windowed --icon ".\logo\TextifyXML_ico.ico" --add-data ".\logo\TextifyXML_png.png;logo" --name "TextifyXML" TextifyXML-qt.py
 ```
 
 ##### macOS (.app)
 ```bash
-python -m PyInstaller --onefile --windowed --icon "./logo/TextifyXML_icns.icns" --add-data "./logo/TextifyXML_png.png:logo" --name "TextifyXML" TextifyXML.py
+python -m PyInstaller --onefile --windowed --icon "./logo/TextifyXML_icns.icns" --add-data "./logo/TextifyXML_png.png:logo" --name "TextifyXML" TextifyXML-qt.py
 ```
